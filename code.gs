@@ -28,48 +28,40 @@ function manualUpdate(){
 
 function initializeSheet(){
   // if not initiated
-  if (getProp("initStatus") !== "True"){
-    setProp("initStatus", "True");
-    initCreate();
-    
-    //check if you want to wipe and reset
-  }else{
-  var sheetList = SpreadsheetApp.getActive().getSheets();
-  for (var i in sheetList){
-    var sheet = sheetList[i];
-    if (!sheet.getDataRange().getValues().join("") === ""){
-      var result = ui.alert(
-     'Please confirm',
-     'Are you sure you want to continue? (delete everything)(litteraly everything; move it out of the sheet if you want to save it)',
-      ui.ButtonSet.YES_NO);
-    }
+  var result = ui.alert(
+  'Please confirm',
+  'Are you sure you want to continue? \n(delete everything)\n(litteraly everything; move it out of the sheet if you want to save it)',
+    ui.ButtonSet.YES_NO);
 
-    if (result == ui.Button.YES) {
-      ui.alert('Confirmation received.');
-      initClean();
-      initCreate();
-      } else {
-      ui.alert('Not deleting everything');
-      }
+  if (result == ui.Button.YES) {
+    ui.alert('Confirmation received.');
+    initClean();
+    initCreate();
+    } else {
+    ui.alert('Not deleting everything');
     }
-  }
 }
 
 function initClean(){
-  SpreadsheetApp.getActiveSpreadsheet().insertSheet("1")
+  SpreadsheetApp.getActiveSpreadsheet().insertSheet()
   var sheetList = SpreadsheetApp.getActive().getSheets();
   for (var i in sheetList){
-    var sheet = sheetList[i];
-    if (sheet != "1"){
-      //todo : there is a set active sheet.clear possibly use that to do soft resets later
-      SpreadsheetApp.getActiveSpreadsheet().deleteSheet(sheet);
+    if ((parseInt(i,10)+1) != sheetList.length){
+      var sheet = sheetList[i];
+        SpreadsheetApp.getActiveSpreadsheet().deleteSheet(sheet);
     }
   }
 }
+
 function initCreate(){
   SpreadsheetApp.getActiveSheet().setName("History");
   SpreadsheetApp.getActiveSpreadsheet().insertSheet("Current Holdings");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('A1').setValue("1");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('A1').setValue("Ticker");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('B1').setValue("Type");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('C1').setValue("Shares");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('D1').setValue("Buy Price");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('E1').setValue("Current Price");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('F1').setValue("Total Equity");
 
 }
 
