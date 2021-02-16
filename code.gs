@@ -1,4 +1,4 @@
-//var ui = SpreadsheetApp.getUi();
+var ui = SpreadsheetApp.getUi();
 //Create the Menu onOpen
 function onOpen() {
   ui.createMenu('Sev Menu')
@@ -9,7 +9,9 @@ function onOpen() {
           .addItem('Set Url', 'setUrl'))
       .addSeparator()
       .addSubMenu(ui.createMenu('Testing')
-          .addItem('TinsertJsonProperty', 'propertiesToSheets'))
+          .addItem('TinsertJsonProperty', 'propertiesToSheets')
+          .addSeparator()
+          .addItem('updateCurrentHoldings', 'updateCurrentHoldings'))
       .addToUi();
 }
 
@@ -18,10 +20,9 @@ function onOpen() {
 
 //Manual Update Button
 function manualUpdateButton(){
-  var ui = SpreadsheetApp.getUi();
-  // update the script property > pullForUpdates > Script property jsonUrl 
+  // update the script property > pullForUpdates > Script property jsonUrl
   setProp('jsonObject', pullForUpdates(getProp('jsonUrl')));
-  ui.alert("Updated");
+  //ui.alert("Updated jsonObject");
 }
 
 function initializeSheet(){
@@ -54,22 +55,31 @@ function initClean(){
 function initCreate(){
   SpreadsheetApp.getActiveSheet().setName("History");
   SpreadsheetApp.getActiveSpreadsheet().insertSheet("Current Holdings");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('A1').setValue("Ticker");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('B1').setValue("Type");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('C1').setValue("Shares");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('D1').setValue("Buy Price");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('E1').setValue("Current Price");
-  SpreadsheetApp.getActiveSpreadsheet().getRange('F1').setValue("Total Equity");
+  SpreadsheetApp.getActiveSpreadsheet().getRange('A1:F1').setHorizontalAlignment("Center")
+  setCell("A1","Ticker");
+  setCell("B1","Type");
+  setCell("C1","Shares");
+  setCell("D1","Buy Price");
+  setCell("E1","Current Price");
+  setCell("F1","Total Equity");
   updateCurrentHoldings()
-
 }
 
 function updateCurrentHoldings(){
-  
-  setTimeout(() => {  var cachedJson = JSON.parse(getProp("jsonObject")); }, 2000);
-  
-  for(var share in cachedJson.stocks){
-    ui.alert(share)
+  var cachedJson = JSON.parse(getProp("jsonObject"));
+  var c = 1
+  console.log(getProp("jsonUrl"))
+  for(var stock in cachedJson.stocks){
+    c = c+1
+    console.log(cachedJson["stocks"][stock])
+    console.log(cachedJson["stocks"][stock]['CurrentPrice'])
+    setCell("A"+c, stock)
+    setCell("B"+c, "Stock")
+    setCell("C"+c, cachedJson["stocks"][stock]['Shares'])
+    setCell("D"+c, cachedJson["stocks"][stock]['SharePrice'])
+    setCell("E"+c, cachedJson["stocks"][stock]['CurrentPrice'])
+    //=c1*d1
+    setCell("F"+c, '=c'+c+'*d'+c)
   }
 }
 
@@ -87,7 +97,7 @@ function getNextUpdate(Minutes){
 }
 
 //returns the json string from url
-function pullForUpdates(url) {
+function pullForUpdates(url=getProp('jsonUrl')) {
   var response = UrlFetchApp.fetch(url);
   var w = response.getContentText();
   return w
