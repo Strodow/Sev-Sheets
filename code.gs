@@ -1,4 +1,4 @@
-var ui = SpreadsheetApp.getUi();
+//var ui = SpreadsheetApp.getUi();
 //Create the Menu onOpen
 function onOpen() {
   ui.createMenu('Sev Menu')
@@ -7,17 +7,14 @@ function onOpen() {
       .addSeparator()
       .addSubMenu(ui.createMenu('Settings')
           .addItem('Set Url', 'setUrl'))
+      .addSeparator()
+      .addSubMenu(ui.createMenu('Testing')
+          .addItem('TinsertJsonProperty', 'propertiesToSheets'))
       .addToUi();
 }
 
-function getProp(key){
-  PropertiesService.getScriptProperties().getProperty(key);
-}
-function setProp(key, value){
-  PropertiesService.getScriptProperties().setProperty(key, value);
-}
-
 //=======Menu Shit=======
+//==Main Menu==
 
 //Manual Update Button
 function manualUpdateButton(){
@@ -25,11 +22,6 @@ function manualUpdateButton(){
   // update the script property > pullForUpdates > Script property jsonUrl 
   setProp('jsonObject', pullForUpdates(getProp('jsonUrl')));
   ui.alert("Updated");
-}
-
-function propertiesToSheets(){
-  var raw = JSON.parse(getProp('jsonObject'));
-  SpreadsheetApp.getActiveSpreadsheet().getRange('A1').setValue(raw.stocks.APPL.Shares);
 }
 
 function initializeSheet(){
@@ -78,22 +70,6 @@ function updateCurrentHoldings(){
   
   for(var share in cachedJson.stocks){
     ui.alert(share)
-  }
-}
-
-//F to update the json Url
-function setUrl(){
-  var result = ui.prompt(
-      'Url to stock json info',
-      'Please enter url:',
-      ui.ButtonSet.OK_CANCEL);
-
-  var button = result.getSelectedButton();
-  var text = result.getResponseText();
-  if (button == ui.Button.OK) {
-    // User clicked "OK".
-    ui.alert('setting Url to : ' + text);
-    setProp('jsonUrl', text);
   }
 }
 
