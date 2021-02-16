@@ -1,4 +1,4 @@
-//var ui = SpreadsheetApp.getUi();
+var ui = SpreadsheetApp.getUi();
 //Create the Menu onOpen
 function onOpen() {
   ui.createMenu('Sev Menu')
