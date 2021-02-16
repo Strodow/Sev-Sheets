@@ -1,4 +1,4 @@
-var ui = SpreadsheetApp.getUi();
+//var ui = SpreadsheetApp.getUi();
 //Create the Menu onOpen
 function onOpen() {
   ui.createMenu('Sev Menu')
@@ -18,10 +18,17 @@ function onOpen() {
 //=======Menu Shit=======
 //==Main Menu==
 
+//todo when updating look at the pas positions prop and see if there are changes
+
 //Manual Update Button
 function manualUpdateButton(){
   // update the script property > pullForUpdates > Script property jsonUrl
-  setProp('jsonObject', pullForUpdates(getProp('jsonUrl')));
+  jsonUpdateObject = JSON.parse(pullForUpdates(getProp('jsonUrl')))["securitiesAccount"]
+  //setProp('jsonObject', jsonUpdateObject);
+  setProp('positions', JSON.stringify(jsonUpdateObject["positions"]))
+  setProp('orderStrategies', JSON.stringify(jsonUpdateObject["orderStrategies"]))
+  setProp('currentBalances', JSON.stringify(jsonUpdateObject["currentBalances"]))
+  setProp('projectedBalances', JSON.stringify(jsonUpdateObject["projectedBalances"]))
   //ui.alert("Updated jsonObject");
 }
 
@@ -59,28 +66,30 @@ function initCreate(){
   setCell("A1","Ticker");
   setCell("B1","Type");
   setCell("C1","Shares");
-  setCell("D1","Buy Price");
+  setCell("D1","Average Price");
   setCell("E1","Current Price");
-  setCell("F1","Total Equity");
+  setCell("F1","P/L Day");
+  setCell("G1","Total Equity");
   updateCurrentHoldings()
 }
 
+//todo join options to stock average price
 function updateCurrentHoldings(){
-  var cachedJson = JSON.parse(getProp("jsonObject"));
-  var c = 1
-  console.log(getProp("jsonUrl"))
-  for(var stock in cachedJson.stocks){
-    c = c+1
-    console.log(cachedJson["stocks"][stock])
-    console.log(cachedJson["stocks"][stock]['CurrentPrice'])
-    setCell("A"+c, stock)
-    setCell("B"+c, "Stock")
-    setCell("C"+c, cachedJson["stocks"][stock]['Shares'])
-    setCell("D"+c, cachedJson["stocks"][stock]['SharePrice'])
-    setCell("E"+c, cachedJson["stocks"][stock]['CurrentPrice'])
-    //=c1*d1
-    setCell("F"+c, '=c'+c+'*d'+c)
+  var cachedPositions = JSON.parse(getProp("positions"));
+  //console.log(cachedPositions)
+  for(var stock in cachedPositions){
+    c = parseInt(stock)+2
+    c = c.toString()
+    setCell("A"+c, cachedPositions[stock]["instrument"]["symbol"])
+    setCell("B"+c, cachedPositions[stock]["instrument"]["assetType"])
+    setCell("C"+c, cachedPositions[stock]["longQuantity"])//todo check if 0 and switch to short quantity
+    setCell("D"+c, cachedPositions[stock]["averagePrice"])
+    //=g1/c1
+    setCell("E"+c,"=G"+c+"/C"+c)
+    setCell("F"+c, cachedPositions[stock]["currentDayProfitLoss"])
+    setCell("G"+c, cachedPositions[stock]["marketValue"])
   }
+  setCell("G"+(parseInt(c)+1).toString(), "=sum(G2:G14)")
 }
 
 //=======JSON retrieval=======
