@@ -2,7 +2,7 @@ var ui = SpreadsheetApp.getUi();
 //Create the Menu onOpen
 function onOpen() {
   ui.createMenu('Sev Menu')
-      .addItem('Manual Update', 'manualUpdate')
+      .addItem('Manual Update', 'manualUpdateButton')
       .addItem('Initialize', "initializeSheet")
       .addSeparator()
       .addSubMenu(ui.createMenu('Settings')
@@ -18,12 +18,18 @@ function setProp(key, value){
 }
 
 //=======Menu Shit=======
+
 //Manual Update Button
-function manualUpdate(){
+function manualUpdateButton(){
   var ui = SpreadsheetApp.getUi();
   // update the script property > pullForUpdates > Script property jsonUrl 
-  getProp('jsonObject', pullForUpdates(getProp('jsonUrl')));
+  setProp('jsonObject', pullForUpdates(getProp('jsonUrl')));
   ui.alert("Updated");
+}
+
+function propertiesToSheets(){
+  var raw = JSON.parse(getProp('jsonObject'));
+  SpreadsheetApp.getActiveSpreadsheet().getRange('A1').setValue(raw.stocks.APPL.Shares);
 }
 
 function initializeSheet(){
@@ -62,7 +68,17 @@ function initCreate(){
   SpreadsheetApp.getActiveSpreadsheet().getRange('D1').setValue("Buy Price");
   SpreadsheetApp.getActiveSpreadsheet().getRange('E1').setValue("Current Price");
   SpreadsheetApp.getActiveSpreadsheet().getRange('F1').setValue("Total Equity");
+  updateCurrentHoldings()
 
+}
+
+function updateCurrentHoldings(){
+  
+  setTimeout(() => {  var cachedJson = JSON.parse(getProp("jsonObject")); }, 2000);
+  
+  for(var share in cachedJson.stocks){
+    ui.alert(share)
+  }
 }
 
 //F to update the json Url
@@ -98,7 +114,7 @@ function getNextUpdate(Minutes){
 function pullForUpdates(url) {
   var response = UrlFetchApp.fetch(url);
   var w = response.getContentText();
-  return w;
+  return w
 }
 
 //=======JSON utilization=======
